@@ -14,7 +14,7 @@ function ClozeFlashcard(text, cloze) {
 	this.cloze = cloze;
 	this.clozeDeletedDisplay = function() {
 		// Displaying cloze deleted text by replacing the 'cloze' text with a blank
-		var clozeDeletedText = text.replace(cloze, "__________");
+		var clozeDeletedText = text.replace(cloze, "$$token$$");
 		console.log(clozeDeletedText);
 	};
 	this.displayAnswer = function() {

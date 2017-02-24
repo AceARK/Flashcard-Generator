@@ -67,6 +67,9 @@ function getCommand() {
 						}
 					]).then(function(clozeFlashcard) {
 						var newClozeFlashcard = new flashcards.ClozeFlashcard(clozeFlashcard.completeText, clozeFlashcard.clozeText );
+						
+						// ******** How to store text in the tokenized form? ********** //
+						
 						// Appending to closeCards file
 						fs.appendFile(".clozeCards", "\n" + JSON.stringify(newClozeFlashcard), function(err) {
 							if(err) {

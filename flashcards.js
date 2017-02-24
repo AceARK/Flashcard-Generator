@@ -18,7 +18,7 @@ function ClozeFlashcard(text, cloze) {
 		console.log(clozeDeletedText);
 	};
 	this.displayAnswer = function() {
-		console.log(this.cloze);
+		console.log(this.text);
 	};
 }
 

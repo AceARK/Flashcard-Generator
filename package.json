@@ -1,0 +1,22 @@
+{
+  "name": "flashcard-generator",
+  "version": "1.0.0",
+  "description": "Flashcard generator/ game",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AceARK/Flashcard-Generator.git"
+  },
+  "author": "Ace",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AceARK/Flashcard-Generator/issues"
+  },
+  "homepage": "https://github.com/AceARK/Flashcard-Generator#readme",
+  "dependencies": {
+    "inquirer": "^3.0.4"
+  }
+}

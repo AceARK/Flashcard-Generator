@@ -67,23 +67,31 @@ function getCommand() {
 						}
 					]).then(function(clozeFlashcard) {
 						var newClozeFlashcard = new flashcards.ClozeFlashcard(clozeFlashcard.completeText, clozeFlashcard.clozeText );
-						
-						// ******** How to store text in the tokenized form? ********** //
-						
-						// Appending to closeCards file
-						fs.appendFile(".clozeCards", "\n" + JSON.stringify(newClozeFlashcard), function(err) {
-							if(err) {
-								console.log(err);
-							}else {
-								console.log("Your flashcard has been stored.");
-								getCommand();
-							}
-						})
+						// Checking for proper cloze pattern using error 'throw' and handling
+						if(newClozeFlashcard instanceof Error) {
+							console.log(`
+------------------------
+Improper cloze flashcard pattern -> 
+${newClozeFlashcard}
+
+Flashcard discarded.
+------------------------
+`);
+							getCommand();
+						}else  {
+							// Appending to closeCards file
+							fs.appendFile(".clozeCards", "\n" + JSON.stringify(newClozeFlashcard), function(err) {
+								if(err) {
+									console.log(err);
+								}else {
+									console.log("Your flashcard has been stored.");
+									getCommand();
+								}
+							}); // End of cloze flashcard storing
+						} // End of else proper cloze condition 
 					});
 				} // cloze flash card creation inquirer end
 			}); // card type inquirer end
-		}else if(user.command === "Display flashcards") {
-			displayCards();
 		}else if(user.command === "Play quiz") {
 			inquirer.prompt([
 				{
@@ -120,11 +128,9 @@ function getCommand() {
 
 				function getQuestions(basicQuizQuestions, loop) {
 					if(loop < basicQuizQuestions.length) {
-						var set = basicQuizQuestions[loop].split(",");
-						var questionSet = set[0].split('":"');
-						var question = questionSet[1].slice(0,-1);
-						var answerSet = set[1].split('":"');
-						var answer = answerSet[1].slice(0,-2);
+						var flashcard = JSON.parse(basicQuizQuestions[loop]);
+						var question = flashcard.front;
+						var answer = flashcard.back;
 
 						console.log(question);
 						inquirer.prompt([

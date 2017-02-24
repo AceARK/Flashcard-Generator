@@ -10,16 +10,12 @@ function BasicFlashcard(front, back) {
 }
 
 function ClozeFlashcard(text, cloze) {
-	this.text = text;
-	this.cloze = cloze;
-	this.clozeDeletedDisplay = function() {
-		// Displaying cloze deleted text by replacing the 'cloze' text with a blank
-		var clozeDeletedText = text.replace(cloze, "$$token$$");
-		console.log(clozeDeletedText);
-	};
-	this.displayAnswer = function() {
-		console.log(this.text);
-	};
+	if(!text.includes(cloze)) {
+		return new Error(`Cloze word "${cloze}" is not a part of "${text}".`);
+	}else {
+		this.text = text;
+		this.cloze = cloze;
+	}
 }
 
 module.exports = {BasicFlashcard, ClozeFlashcard};

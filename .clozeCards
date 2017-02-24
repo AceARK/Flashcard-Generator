@@ -3,3 +3,5 @@
 {"text":"A leap year occurs every 4 years","cloze":"4"}
 {"text":"The 1993 Jurassic Park movie was directed by Steven Spielberg.","cloze":"Steven Spielberg"}
 {"text":"The blue whale is the biggest mammal on the planet.","cloze":"blue whale"}
+{"text":"This is a random statement","cloze":"random"}
+{"text":"This is a sample cloze.","cloze":"sample"}

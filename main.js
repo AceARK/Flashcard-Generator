@@ -1,14 +1,14 @@
+// Requiring inquirer npm
 var inquirer = require("inquirer");
+// Requiring fs 
 var fs = require("fs");
-
+// Requiring flashcards.js
 var flashcards = require("./flashcards.js");
-
-var basicQuizQuestions = [];
-var clozeQuizQuestions = [];
-var randomQuestions = [];
+// Initializing variables for shuffling flashcards
 var randomQuestionIndex = 0;
 var usedQuestionIndex = [];
 
+// Function to get user's choice of action
 function getCommand() {
 	inquirer.prompt([
 		{	
@@ -19,15 +19,17 @@ function getCommand() {
 		}
 	]).then(function(user) {
 		if(user.command === "Create a flashcard") {
+			// Ask about the type of flashcard to create
 			inquirer.prompt([
 				{
 					type: "list",
 					name: "type",
 					message: "Card type: ", 
-					choices: ["Basic", "Cloze"]
+					choices: ["Basic flashcard", "Cloze flashcard"]
 				}
 			]).then(function(card) {
-				if(card.type === "Basic") {
+				if(card.type === "Basic flashcard") {
+					// Ask user to enter the question on the front, and the answer at the back
 					inquirer.prompt([
 						{
 							name: "question",
@@ -38,21 +40,37 @@ function getCommand() {
 							message: "Enter it's answer:"
 						}
 					]).then(function(basicFlashcard) {
-
 						// Creating object of BasicFlashcard without 'new' keyword
-
 						var newBasicFlashcard = flashcards.BasicFlashcard(basicFlashcard.question, basicFlashcard.answer);
-						// console.log(newBasicFlashcard);
+						// Add to .basicCards file after stringify-ing
 						fs.appendFile(".basicCards", "\n" + JSON.stringify(newBasicFlashcard), function(err) {
 							if(err) {
 								console.log(err);
 							}else {
-								console.log("Your flashcard has been stored.");
+								console.log(`
+--------------------
+- Flashcard created and stored - 
+
+Front:
+_________________________________________________
+|												
+|   ${newBasicFlashcard.front} 					
+|_______________________________________________|
+
+Back:
+_________________________________________________
+|												
+|		  ${newBasicFlashcard.back} 			
+|_______________________________________________|
+
+`);
+
 								getCommand();
 							}
 						})
-					}); // basic flash card creation inquirer end
-				}else if(card.type === "Cloze") {
+					}); // Basic flash card creation inquirer end
+				}else if(card.type === "Cloze flashcard") {
+					// Ask user to enter the cloze flashcard fullText and clozeWord
 					inquirer.prompt([
 						{
 							name: "completeText",
@@ -73,7 +91,7 @@ function getCommand() {
 Improper cloze flashcard pattern -> 
 ${newClozeFlashcard}
 
-Flashcard discarded.
+- Flashcard discarded - 
 ------------------------
 `);
 							getCommand();
@@ -83,7 +101,23 @@ Flashcard discarded.
 								if(err) {
 									console.log(err);
 								}else {
-									console.log("Your flashcard has been stored.");
+									console.log(`
+--------------------
+- Flashcard created and stored - 
+
+Cloze-deleted text:
+_________________________________________________
+|												
+|   ${newClozeFlashcard.getPartialText()} 			
+|_______________________________________________|
+
+Full Text:
+_________________________________________________
+|												
+|   ${newClozeFlashcard.text}	 					
+|_______________________________________________|
+
+`);
 									getCommand();
 								}
 							}); // End of cloze flashcard storing
@@ -108,8 +142,10 @@ Flashcard discarded.
 					case "Basic Flashcard Quiz":
 						// If Basic, read basic file
 						fs.readFile(".basicCards", "utf-8", function(err, data) {
+							// Split data and new line and store in array
 							quizQuestions = data.split("\n");
 							var loop = 0;
+							// Send to getQuestions function
 							getQuestions(quizQuestions, loop);
 						});
 						break;
@@ -117,23 +153,27 @@ Flashcard discarded.
 					case "Cloze Flashcard Quiz":
 						// If Cloze, read cloze file
 						fs.readFile(".clozeCards", "utf-8", function(err, data) {
+							// Split data and new line and store in array
 							quizQuestions = data.split("\n");
-							// var parsedQuestion = JSON.parse(quizQuestions[0]);
 							var loop = 0;
-							getQuestions(quizQuestions, loop);
 							// Send to getQuestions function
+							getQuestions(quizQuestions, loop);
 						});
 						break;
 
 					case "Randomized":
 						quizQuestions = [];
+						// Read all basic cards
 						fs.readFile(".basicCards", "utf-8", function(err, data) {
+							// Split at new line and store in array
 							quizQuestions = data.split("\n");
-
+							// Read all cloze cards
 							fs.readFile(".clozeCards", "utf-8", function(err, data) {
+								// Split at new line and store in temp array
 								var clozeQuestions = data.split("\n");
+								// Add contents of temp array to main array using ES6 spread syntax
 								quizQuestions.push(...clozeQuestions);
- 								
+								// Initialize loop variable and send to getQuestions
 								var loop = 0;
 								getQuestions(quizQuestions, loop);
 							});
@@ -141,7 +181,7 @@ Flashcard discarded.
 						break;
 
 					default:
-						// Inquirer doesn't allow the program to progress without choosing one of the options within the list, so this won't work anyway, so why not? 
+						// Inquirer doesn't allow the program to progress without choosing one of the options within the list. In case someone does break it, this should stun them for a few minutes. 
 						console.log("If you see this, you are seeing through the crack in the Matrix. You should know this - You are being watched. You are being monitored. You are being... Controlled.");
 						break;
 				}
@@ -177,7 +217,13 @@ function getQuestions(quizQuestions, loop) {
 			var answer = flashcard.back;
 		}
 		// Ask question, and wait for answer
-		console.log(question);
+		console.log(`
+_________________________________________________
+|												
+|   ${question}				 					
+|_______________________________________________|
+
+`);		// Wait for user answer
 		inquirer.prompt([
 			{
 				name: "answer",
@@ -187,14 +233,20 @@ function getQuestions(quizQuestions, loop) {
 			// If answer = answer in file, "correct", else "wrong"
 			if(user.answer.toLowerCase() === answer.toLowerCase()) {
 				console.log(`
+--------------------
 You are correct!
 --------------------
 `);
 			}else {
 				console.log(`
-You are wrong.
-The correct answer is: ${answer}
 --------------------
+You are wrong.
+The correct answer is: 
+_________________________________________________
+|												
+|		   ${answer}				 					
+|_______________________________________________|
+
 `);
 			}
 			// Go to next question after asking user
@@ -204,7 +256,7 @@ The correct answer is: ${answer}
 					{
 						type: "confirm",
 						name: "another",
-						message: "Take another?"
+						message: "Next card?"
 					}
 				]).then(function(game) {
 					if(game.another) {
@@ -214,7 +266,14 @@ The correct answer is: ${answer}
 					}
 				});
 			} else {
-				console.log("Game over");
+				console.log(`
+=========================
+
+	Game over
+
+=========================
+
+`);
 				getCommand();
 			}
 		});

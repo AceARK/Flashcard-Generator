@@ -5,6 +5,6 @@ A Node.js Flashcard exercise turned quiz that uses JavaScript constructors, clos
 
 Features:-
 - Create a Basic or Cloze flashcard
-- Play quiz with Basic, Cloze or both types of flashcards
+- Play a quiz with Basic, Cloze or both types of flashcards
 
 Uses JavaScript, Node.js, Inquirer npm

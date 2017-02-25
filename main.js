@@ -38,7 +38,10 @@ function getCommand() {
 							message: "Enter it's answer:"
 						}
 					]).then(function(basicFlashcard) {
-						var newBasicFlashcard = new flashcards.BasicFlashcard(basicFlashcard.question, basicFlashcard.answer);
+
+						// Creating object of BasicFlashcard without 'new' keyword
+						
+						var newBasicFlashcard = flashcards.BasicFlashcard(basicFlashcard.question, basicFlashcard.answer);
 						// console.log(newBasicFlashcard);
 						fs.appendFile(".basicCards", "\n" + JSON.stringify(newBasicFlashcard), function(err) {
 							if(err) {
@@ -60,6 +63,7 @@ function getCommand() {
 							message: "Enter the text to be hidden when quizzing:"
 						}
 					]).then(function(clozeFlashcard) {
+						// I chose to store the cloze flashcard using fullText and clozeWord rather than use the method and store partialText and clozeWord
 						// Lazy initialization here, hence does not require a try-catch block
 						var newClozeFlashcard = new flashcards.ClozeFlashcard(clozeFlashcard.completeText, clozeFlashcard.clozeText );
 						// Checking for proper cloze pattern using error 'throw' and handling
@@ -96,17 +100,7 @@ Flashcard discarded.
 					choices: ["Basic Flashcard Quiz", "Cloze Flashcard Quiz", "Randomized"] 
 				}
 			]).then(function(choice) {
-				
-				
-				
-				
-				
-
-				
-				// Choose any question at random (store index in used index list to avoid displaying used questions again)
-				
-				// If answer = answer in file, "correct", else "wrong"
-				// Go to next question
+				// Making sure to reset randomIndex and usedIndex array for shuffling flashcards
 				randomQuestionIndex = 0;
 				usedQuestionIndex = [];
 
@@ -161,7 +155,7 @@ function getQuestions(quizQuestions, loop) {
 	// console.log(quizQuestions);
 	if(loop < quizQuestions.length) {
 
-		// Randomizing question sequence
+		// Shuffling flashcards
 		randomQuestionIndex = Math.floor(Math.random()*quizQuestions.length);
 		while(usedQuestionIndex.indexOf(randomQuestionIndex) !== -1) {
 			randomQuestionIndex = Math.floor(Math.random()*quizQuestions.length);
@@ -173,9 +167,10 @@ function getQuestions(quizQuestions, loop) {
 
 		// Check if flashcard is of cloze type
 		if(flashcard.hasOwnProperty('cloze')) {
+			var text = flashcard.text;
 			// Replace cloze with token, and display cloze-deleted text/ partial text
-			var clozeQuestion = new flashcards.ClozeFlashcard(flashcard.text, flashcard.cloze);
-			var question = clozeQuestion.getPartialText();
+			var partialText = text.replace(flashcard.cloze,flashcards.CLOZE_TOKEN);
+			var question = partialText;
 			var answer = flashcard.cloze;
 		}else {
 			var question = flashcard.front;

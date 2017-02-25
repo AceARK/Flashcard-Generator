@@ -40,7 +40,7 @@ function getCommand() {
 					]).then(function(basicFlashcard) {
 
 						// Creating object of BasicFlashcard without 'new' keyword
-						
+
 						var newBasicFlashcard = flashcards.BasicFlashcard(basicFlashcard.question, basicFlashcard.answer);
 						// console.log(newBasicFlashcard);
 						fs.appendFile(".basicCards", "\n" + JSON.stringify(newBasicFlashcard), function(err) {
@@ -65,7 +65,7 @@ function getCommand() {
 					]).then(function(clozeFlashcard) {
 						// I chose to store the cloze flashcard using fullText and clozeWord rather than use the method and store partialText and clozeWord
 						// Lazy initialization here, hence does not require a try-catch block
-						var newClozeFlashcard = new flashcards.ClozeFlashcard(clozeFlashcard.completeText, clozeFlashcard.clozeText );
+						var newClozeFlashcard = flashcards.ClozeFlashcard(clozeFlashcard.completeText, clozeFlashcard.clozeText );
 						// Checking for proper cloze pattern using error 'throw' and handling
 						if(newClozeFlashcard instanceof Error) {
 							console.log(`

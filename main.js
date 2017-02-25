@@ -6,16 +6,8 @@ var flashcards = require("./flashcards.js");
 var basicQuizQuestions = [];
 var clozeQuizQuestions = [];
 var randomQuestions = [];
-var playCheck = false;
-
-// newBasicFlashcard.displayQuestion();
-
-// newBasicFlashcard.displayAnswer();
-
-
-// newClozeFlashcard.clozeDeletedDisplay();
-
-// newClozeFlashcard.displayAnswer();
+var randomQuestionIndex = 0;
+var usedQuestionIndex = [];
 
 function getCommand() {
 	inquirer.prompt([
@@ -29,8 +21,10 @@ function getCommand() {
 		if(user.command === "Create a flashcard") {
 			inquirer.prompt([
 				{
+					type: "list",
 					name: "type",
-					message: "Basic or Cloze?", 
+					message: "Card type: ", 
+					choices: ["Basic", "Cloze"]
 				}
 			]).then(function(card) {
 				if(card.type === "Basic") {
@@ -66,6 +60,7 @@ function getCommand() {
 							message: "Enter the text to be hidden when quizzing:"
 						}
 					]).then(function(clozeFlashcard) {
+						// Lazy initialization here, hence does not require a try-catch block
 						var newClozeFlashcard = new flashcards.ClozeFlashcard(clozeFlashcard.completeText, clozeFlashcard.clozeText );
 						// Checking for proper cloze pattern using error 'throw' and handling
 						if(newClozeFlashcard instanceof Error) {
@@ -112,69 +107,113 @@ Flashcard discarded.
 				// Pass into cloze constructor and use method clozeDeletedDisplay() to display only quiz text, and wait for user answer
 				// If answer = answer in file, "correct", else "wrong"
 				// Go to next question
+				randomQuestionIndex = 0;
+				usedQuestionIndex = [];
+
 				switch(choice.typeOfQs) {
 					case "Basic Flashcard Quiz":
 						fs.readFile(".basicCards", "utf-8", function(err, data) {
-							basicQuizQuestions = data.split("\n");
+							quizQuestions = data.split("\n");
 							var loop = 0;
-							getQuestions(basicQuizQuestions, loop);
+							getQuestions(quizQuestions, loop);
 						});
 						break;
 
 					case "Cloze Flashcard Quiz":
-						fs.readFile(".clozeCards", "utf-8", function(err, data) {});
-						break;
-				}
-
-				function getQuestions(basicQuizQuestions, loop) {
-					if(loop < basicQuizQuestions.length) {
-						var flashcard = JSON.parse(basicQuizQuestions[loop]);
-						var question = flashcard.front;
-						var answer = flashcard.back;
-
-						console.log(question);
-						inquirer.prompt([
-							{
-								name: "answer",
-								message: "Your answer: " 
-							}
-						]).then(function(user) {
-							if(user.answer.toLowerCase() === answer.toLowerCase()) {
-								console.log(`
-You are correct!
---------------------
-`);
-							}else {
-								console.log(`
-You are wrong.
-The correct answer is: ${answer}
---------------------
-`);
-							}
-							loop++;
-							if(loop < basicQuizQuestions.length) {
-								inquirer.prompt([
-									{
-										type: "confirm",
-										name: "another",
-										message: "Play another?"
-									}
-								]).then(function(game) {
-									if(game.another) {
-										getQuestions(basicQuizQuestions, loop);
-									}else {
-										getCommand();
-									}
-								});
-							} else {
-								console.log("Basic Flashcard game over");
-								getCommand();
-							}
+						fs.readFile(".clozeCards", "utf-8", function(err, data) {
+							quizQuestions = data.split("\n");
+							// var parsedQuestion = JSON.parse(quizQuestions[0]);
+							var loop = 0;
+							getQuestions(quizQuestions, loop);
+							// Send to getQuestions function
 						});
-					}
+						break;
+
+					case "Randomized":
+						quizQuestions = [];
+						fs.readFile(".basicCards", "utf-8", function(err, data) {
+							quizQuestions = data.split("\n");
+
+							fs.readFile(".clozeCards", "utf-8", function(err, data) {
+								var clozeQuestions = data.split("\n");
+								quizQuestions.push(...clozeQuestions);
+ 								
+								var loop = 0;
+								getQuestions(quizQuestions, loop);
+							});
+						});
 				}
 			})
 		}
 	})
 }
+
+// Function to get questions
+function getQuestions(quizQuestions, loop) {
+	// console.log(quizQuestions);
+	if(loop < quizQuestions.length) {
+
+		// Randomizing question sequence
+		randomQuestionIndex = Math.floor(Math.random()*quizQuestions.length);
+		while(usedQuestionIndex.indexOf(randomQuestionIndex) !== -1) {
+			randomQuestionIndex = Math.floor(Math.random()*quizQuestions.length);
+		}
+		usedQuestionIndex.push(randomQuestionIndex);
+
+		// Parsing into flashcard
+		var flashcard = JSON.parse(quizQuestions[randomQuestionIndex]);
+		// Check if flashcard is of cloze type
+		if(flashcard.hasOwnProperty('cloze')) {
+			var text = flashcard.text;
+			var partialText = text.replace(flashcard.cloze,flashcards.CLOZE_TOKEN);
+			var question = partialText;
+			var answer = flashcard.cloze;
+		}else {
+			var question = flashcard.front;
+			var answer = flashcard.back;
+		}
+
+		console.log(question);
+		inquirer.prompt([
+			{
+				name: "answer",
+				message: "Your answer: " 
+			}
+		]).then(function(user) {
+			if(user.answer.toLowerCase() === answer.toLowerCase()) {
+				console.log(`
+You are correct!
+--------------------
+`);
+			}else {
+				console.log(`
+You are wrong.
+The correct answer is: ${answer}
+--------------------
+`);
+			}
+			loop++;
+			if(loop < quizQuestions.length) {
+				inquirer.prompt([
+					{
+						type: "confirm",
+						name: "another",
+						message: "Take another?"
+					}
+				]).then(function(game) {
+					if(game.another) {
+						getQuestions(quizQuestions, loop);
+					}else {
+						getCommand();
+					}
+				});
+			} else {
+				console.log("Game over");
+				getCommand();
+			}
+		});
+	}
+}
+
+// Start Flashcard program
 getCommand();

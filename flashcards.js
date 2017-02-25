@@ -1,3 +1,5 @@
+const CLOZE_TOKEN = "___";
+
 function BasicFlashcard(front, back) {
 	this.front = front;
 	this.back = back;
@@ -18,4 +20,4 @@ function ClozeFlashcard(text, cloze) {
 	}
 }
 
-module.exports = {BasicFlashcard, ClozeFlashcard};
+module.exports = {BasicFlashcard, ClozeFlashcard, CLOZE_TOKEN};

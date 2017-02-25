@@ -7,4 +7,8 @@ Features:-
 - Create a Basic or Cloze flashcard
 - Play a quiz with Basic, Cloze or both types of flashcards
 
+Enter 
+> node main.js
+and follow the inquirer prompts.
+
 Uses JavaScript, Node.js, Inquirer npm

@@ -96,15 +96,15 @@ Flashcard discarded.
 					choices: ["Basic Flashcard Quiz", "Cloze Flashcard Quiz", "Randomized"] 
 				}
 			]).then(function(choice) {
-				// If Basic, read basic file
-				// Choose any question at random (store index in used index list to avoid displaying used questions again)
-				// Ask question, and wait for answer
-				// If answer = answer in file, "correct", else "wrong"
-				// Go to next question
+				
+				
+				
+				
+				
 
-				// If Cloze, read cloze file
+				
 				// Choose any question at random (store index in used index list to avoid displaying used questions again)
-				// Pass into cloze constructor and use method clozeDeletedDisplay() to display only quiz text, and wait for user answer
+				
 				// If answer = answer in file, "correct", else "wrong"
 				// Go to next question
 				randomQuestionIndex = 0;
@@ -112,6 +112,7 @@ Flashcard discarded.
 
 				switch(choice.typeOfQs) {
 					case "Basic Flashcard Quiz":
+						// If Basic, read basic file
 						fs.readFile(".basicCards", "utf-8", function(err, data) {
 							quizQuestions = data.split("\n");
 							var loop = 0;
@@ -120,6 +121,7 @@ Flashcard discarded.
 						break;
 
 					case "Cloze Flashcard Quiz":
+						// If Cloze, read cloze file
 						fs.readFile(".clozeCards", "utf-8", function(err, data) {
 							quizQuestions = data.split("\n");
 							// var parsedQuestion = JSON.parse(quizQuestions[0]);
@@ -142,6 +144,12 @@ Flashcard discarded.
 								getQuestions(quizQuestions, loop);
 							});
 						});
+						break;
+
+					default:
+						// Inquirer doesn't allow the program to progress without choosing one of the options within the list, so this won't work anyway, so why not? 
+						console.log("If you see this, you are seeing through the crack in the Matrix. You should know this - You are being watched. You are being monitored. You are being... Controlled.");
+						break;
 				}
 			})
 		}
@@ -162,17 +170,18 @@ function getQuestions(quizQuestions, loop) {
 
 		// Parsing into flashcard
 		var flashcard = JSON.parse(quizQuestions[randomQuestionIndex]);
+
 		// Check if flashcard is of cloze type
 		if(flashcard.hasOwnProperty('cloze')) {
-			var text = flashcard.text;
-			var partialText = text.replace(flashcard.cloze,flashcards.CLOZE_TOKEN);
-			var question = partialText;
+			// Replace cloze with token, and display cloze-deleted text/ partial text
+			var clozeQuestion = new flashcards.ClozeFlashcard(flashcard.text, flashcard.cloze);
+			var question = clozeQuestion.getPartialText();
 			var answer = flashcard.cloze;
 		}else {
 			var question = flashcard.front;
 			var answer = flashcard.back;
 		}
-
+		// Ask question, and wait for answer
 		console.log(question);
 		inquirer.prompt([
 			{
@@ -180,6 +189,7 @@ function getQuestions(quizQuestions, loop) {
 				message: "Your answer: " 
 			}
 		]).then(function(user) {
+			// If answer = answer in file, "correct", else "wrong"
 			if(user.answer.toLowerCase() === answer.toLowerCase()) {
 				console.log(`
 You are correct!
@@ -192,6 +202,7 @@ The correct answer is: ${answer}
 --------------------
 `);
 			}
+			// Go to next question after asking user
 			loop++;
 			if(loop < quizQuestions.length) {
 				inquirer.prompt([

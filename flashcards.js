@@ -3,12 +3,6 @@ const CLOZE_TOKEN = "___";
 function BasicFlashcard(front, back) {
 	this.front = front;
 	this.back = back;
-	this.displayQuestion = function() {
-		console.log(this.front);
-	}
-	this.displayAnswer = function() {
-		console.log(this.back);
-	}
 }
 
 function ClozeFlashcard(text, cloze) {
@@ -17,6 +11,10 @@ function ClozeFlashcard(text, cloze) {
 	}else {
 		this.text = text;
 		this.cloze = cloze;
+		this.getPartialText = function() {
+			var partialText = text.replace(cloze, CLOZE_TOKEN);
+			return partialText;
+		}
 	}
 }
 

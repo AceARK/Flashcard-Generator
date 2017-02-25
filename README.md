@@ -9,6 +9,7 @@ Features:-
 
 Enter 
 > node main.js
+----
 and follow the inquirer prompts.
 
 Uses JavaScript, Node.js, Inquirer npm

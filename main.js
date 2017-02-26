@@ -181,11 +181,19 @@ _________________________________________________
 						break;
 
 					default:
-						// Inquirer doesn't allow the program to progress without choosing one of the options within the list. In case someone does break it, this should stun them for a few minutes. 
+						// Inquirer doesn't allow the program to progress without choosing one of the options within the list. In case someone does break it, this should stun them for a few seconds. 
 						console.log("If you see this, you are seeing through the crack in the Matrix. You should know this - You are being watched. You are being monitored. You are being... Controlled.");
 						break;
 				}
 			})
+		}else if(user.command === "Exit") {
+			console.log(`
+---------------------
+ Thanks for playing
+---------------------
+ * * * Goodbye * * *
+---------------------
+			`);
 		}
 	})
 }
@@ -280,5 +288,10 @@ _________________________________________________
 	}
 }
 
+console.log(`
+-------------------
+* * * Welcome * * *
+-------------------
+`);
 // Start Flashcard program
 getCommand();

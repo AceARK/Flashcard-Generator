@@ -288,10 +288,11 @@ _________________________________________________
 	}
 }
 
+// Start Flashcard program
 console.log(`
 -------------------
 * * * Welcome * * *
 -------------------
 `);
-// Start Flashcard program
+// Call function to ask user what they would like to do
 getCommand();
